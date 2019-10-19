@@ -17,7 +17,7 @@ public class MotionEventListener implements SensorEventListener {
             stringBuffer.append(val).append(" ");
 
         }
-        Log.i("GRAVITY", "accel"+stringBuffer.toString());
+
     }
 
     @Override

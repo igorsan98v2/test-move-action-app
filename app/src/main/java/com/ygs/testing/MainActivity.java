@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.ygs.testing.controller.DBAccess;
+import com.ygs.testing.controller.MotionController;
 import com.ygs.testing.listeners.MotionEventListener;
 
 import java.util.Timer;
@@ -21,9 +23,12 @@ public class MainActivity extends AppCompatActivity {
     private final int TIMER_PERIOD =500;
     private final int ACTION_FAIL_TIME = 1000;
     private final int ACTION_TIME = 10000;
+    private final int FAIL_CODE =0;
+    private final int SUCCESS_CODE =1;
     private String progress ;
     private String request;
     private String success;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -35,13 +40,14 @@ public class MainActivity extends AppCompatActivity {
         progress = getResources().getString(R.string.action_in_progress);
         success = getResources().getString(R.string.action_respond);
         request = getResources().getString(R.string.action_request);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        final MotionController controller = new MotionController(motionEventListener);
+        final MotionController controller = new MotionController(motionEventListener,this);
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             int iter =0;
@@ -58,19 +64,21 @@ public class MainActivity extends AppCompatActivity {
                        if(iter*TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change){
                             iter=0;
                             action_status = request;
-                            Log.i("STAT","FAIL"+request);
+                            controller.sendStat(FAIL_CODE);
+                            Log.i("STAT","FAIL"+action_status);
                        }
                        //success case
                        else if(iter*TIMER_PERIOD%ACTION_TIME==0 && iter!=0)
                        {
                            action_status = success;
-                           Log.i("STAT","success"+request);
+                           Log.i("STAT","success"+action_status);
+                           controller.sendStat(SUCCESS_CODE);
                            iter=0;
                        }
                        //continue case
                        else{
                            action_status = progress;
-                           Log.i("STAT","progress" + request);
+                           Log.i("STAT","progress" + action_status);
                            iter++;
                        }
                        changeInfo(action_status);
