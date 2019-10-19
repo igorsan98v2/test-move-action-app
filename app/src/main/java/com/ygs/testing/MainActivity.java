@@ -2,14 +2,86 @@ package com.ygs.testing;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+
+import com.ygs.testing.listeners.MotionEventListener;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
-
+    private SensorManager sensorManager;
+    private MotionEventListener motionEventListener=new MotionEventListener();
+    private TextView actionStatus;
+    private final int TIMER_PERIOD =500;
+    private final int ACTION_FAIL_TIME = 1000;
+    private final int ACTION_TIME = 10000;
+    private String progress ;
+    private String request;
+    private String success;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        Sensor motionSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        sensorManager.registerListener(motionEventListener,motionSensor,SensorManager.SENSOR_DELAY_NORMAL);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        actionStatus = findViewById(R.id.action_status);
+        progress = getResources().getString(R.string.action_in_progress);
+        success = getResources().getString(R.string.action_respond);
+        request = getResources().getString(R.string.action_request);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final MotionController controller = new MotionController(motionEventListener);
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            int iter =0;
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                       boolean change = controller.isStillMove();
+                       String action_status="";
+                       //fail case
+
+                       if(iter*TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change){
+                            iter=0;
+                            action_status = request;
+                            Log.i("STAT","FAIL"+request);
+                       }
+                       //success case
+                       else if(iter*TIMER_PERIOD%ACTION_TIME==0 && iter!=0)
+                       {
+                           action_status = success;
+                           Log.i("STAT","success"+request);
+                           iter=0;
+                       }
+                       //continue case
+                       else{
+                           action_status = progress;
+                           Log.i("STAT","progress" + request);
+                           iter++;
+                       }
+                       changeInfo(action_status);
+                    }
+                });
+            }
+        };
+        timer.schedule(task,0,TIMER_PERIOD);
+    }
+
+    private void changeInfo(String action){
+        actionStatus.setText(action);
     }
 }
