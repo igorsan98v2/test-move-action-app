@@ -7,10 +7,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.ygs.testing.controller.DBAccess;
 import com.ygs.testing.controller.MotionController;
+import com.ygs.testing.listeners.ButtonListener;
 import com.ygs.testing.listeners.MotionEventListener;
 
 import java.util.Timer;
@@ -19,6 +21,7 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private MotionEventListener motionEventListener=new MotionEventListener();
+    private Button toStatButton;
     private TextView actionStatus;
     private final int TIMER_PERIOD =500;
     private final int ACTION_FAIL_TIME = 1000;
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         actionStatus = findViewById(R.id.action_status);
+        toStatButton =findViewById(R.id.button);
+        toStatButton.setOnClickListener(new ButtonListener());
         progress = getResources().getString(R.string.action_in_progress);
         success = getResources().getString(R.string.action_respond);
         request = getResources().getString(R.string.action_request);
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             int iter =0;
+            int prvsStatus =0;
             @Override
             public void run() {
                 runOnUiThread(new Runnable() {
@@ -63,9 +69,12 @@ public class MainActivity extends AppCompatActivity {
 
                        if(iter*TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change){
                             iter=0;
-                            action_status = request;
-                            controller.sendStat(FAIL_CODE);
-                            Log.i("STAT","FAIL"+action_status);
+                            if(prvsStatus!=0) {
+                                action_status = request;
+                                controller.sendStat(FAIL_CODE);
+                                Log.i("STAT", "FAIL" + action_status);
+                            }
+                            prvsStatus=0;
                        }
                        //success case
                        else if(iter*TIMER_PERIOD%ACTION_TIME==0 && iter!=0)
@@ -74,12 +83,14 @@ public class MainActivity extends AppCompatActivity {
                            Log.i("STAT","success"+action_status);
                            controller.sendStat(SUCCESS_CODE);
                            iter=0;
+                           prvsStatus =1;
                        }
                        //continue case
                        else{
                            action_status = progress;
                            Log.i("STAT","progress" + action_status);
                            iter++;
+                           prvsStatus =2;
                        }
                        changeInfo(action_status);
                     }
@@ -92,4 +103,5 @@ public class MainActivity extends AppCompatActivity {
     private void changeInfo(String action){
         actionStatus.setText(action);
     }
+
 }

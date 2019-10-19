@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 
 import com.ygs.testing.util.Energy;
@@ -22,8 +23,15 @@ public class DBAccess {
 
    }
    public static DBAccess getInstace(Context context){
-       if(dbAccess.dbHelper==null){
-           dbAccess.dbHelper= new DBHelper(context);
+       try {
+
+
+           if (dbAccess.dbHelper == null || (dbAccess.dbHelper!=null && !context.equals(dbAccess.dbHelper.getContext()))) {
+               dbAccess.dbHelper = new DBHelper(context);
+           }
+       }
+       catch (NullPointerException e){
+           Log.e("ERROR",e.getMessage());
        }
        return dbAccess;
    }
@@ -33,8 +41,10 @@ public class DBAccess {
        SQLiteDatabase db = dbHelper.getWritableDatabase();
        cv.put("status",energy.getStatus());
        cv.put("time", (int) (new Date().getTime()/1000));//convert date to int
-       db.insert("stats", null, cv);
-       db.close();
+       long rowID = db.insert("stats", null, cv);
+        // = db.insert("mytable", null, cv);
+       Log.d("INSERT", "row inserted, ID = " + rowID);
+
    }
    public Collection<Status> loadStats(){
        List<Status> stats = new ArrayList<Status>();
@@ -58,8 +68,10 @@ public class DBAccess {
            } while (c.moveToNext());
        }
        c.close();
-       db.close();
+
        return stats;
    }
-
+    public  static void close(){
+       dbAccess.dbHelper.close();
+    }
 }

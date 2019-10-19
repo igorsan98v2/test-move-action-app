@@ -2,6 +2,7 @@ package com.ygs.testing.controller;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.ygs.testing.listeners.MotionEventListener;
 import com.ygs.testing.services.NetworkService;
@@ -10,6 +11,7 @@ import com.ygs.testing.util.Energy;
 import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,18 +50,17 @@ public class MotionController {
     public  void sendStat(int status){
         Energy energy = new Energy();
         energy.setStatus(status);
+        DBAccess.getInstace(context).writeStat(energy);
         NetworkService.getInstance()
                 .getJSONApi().sendData(energy)
-                .enqueue(new Callback<Energy>() {
+                .enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(@NonNull Call<Energy> call, @NonNull Response<Energy> response) {
-                        if(response.body()!=null) {
-                            DBAccess.getInstace(context).writeStat(response.body());
-                        }
+                    public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                       Log.i("RESPONSE",response.message());
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<Energy> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
 
                         t.printStackTrace();
                     }

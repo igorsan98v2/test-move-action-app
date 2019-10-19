@@ -1,13 +1,15 @@
 package com.ygs.testing.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
 
 public class Status {
-    int id;
-    int status;
-    Date date;
+    private int id;
+    private int status;
+    private Date date;
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     public Status(int id, int status, Date date) {
         this.id = id;
@@ -42,6 +44,9 @@ public class Status {
     @NonNull
     @Override
     public String toString() {
-        return super.toString();
+
+
+        String dateString = format.format( date);
+        return String.format("%-6d %d %13s",id,status,dateString);
     }
 }

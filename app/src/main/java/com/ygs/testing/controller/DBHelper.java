@@ -7,9 +7,11 @@ import android.util.Log;
 
 public class DBHelper  extends SQLiteOpenHelper {
         final  String LOG_TAG = "DATABASE";
+        private Context context;
         DBHelper(Context context) {
             // конструктор суперкласса
-            super(context, "myDB", null, 1);
+            super(context, "statusDB", null, 1);
+            this.context =context;
         }
 
         @Override
@@ -26,6 +28,12 @@ public class DBHelper  extends SQLiteOpenHelper {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         }
+
+
+
+    Context getContext() {
+        return context;
     }
+}
 
 
