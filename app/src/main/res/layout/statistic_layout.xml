@@ -23,15 +23,15 @@
 
             android:layout_weight="1"
             android:text="@string/status_id"
-            android:textAlignment="textStart" />
+            android:textAlignment="center" />
 
         <TextView
-            android:id="@+id/status"
+            android:id="@+id/energy_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/status_respond"
-            android:textAlignment="textStart" />
+            android:textAlignment="center" />
 
         <TextView
             android:id="@+id/date"

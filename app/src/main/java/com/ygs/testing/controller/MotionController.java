@@ -12,17 +12,25 @@ import com.ygs.testing.util.Energy;
 
 
 
-
+/**
+ * @author Ihor Yutsyk
+ * class use for conrolling user motion
+ * deciding status of energy loss progress;
+ * sending stat to restful service with report of energy loss try
+ * saving data energy loses to db
+ *
+ * */
 public class MotionController {
     private MotionEventListener eventListener;
     private Context context;
     private float[] prvsValues = null;
-    private float accLevel =0.25f;//
 
+    private float ACCURANCY =0.1f;//
     private final int ACTION_FAIL_TIME = 1000;
     private final int ACTION_TIME = 10000;
     private final int FAIL_CODE =0;
     private final int SUCCESS_CODE =1;
+
     private int prvsStatus=0;
     private int iter=0;
 
@@ -46,7 +54,7 @@ public class MotionController {
        if(prvsValues!=null&&curValues!=null){
             int unMoveCounter = 0;
             for(int i=0;i<curValues.length;i++){
-                if(curValues[i]-prvsValues[i]<=accLevel)
+                if(curValues[i]-prvsValues[i]<=ACCURANCY)
                     unMoveCounter++;
             }
            prvsValues = curValues.clone();
@@ -59,32 +67,26 @@ public class MotionController {
        if(prvsValues==null||curValues==null)return false;
        return true;
     }
-    public  void sendStat(int status){
+    public void  sendStat(int status){
         Energy energy = new Energy();
         energy.setStatus(status);
         DBAccess.getInstace(context).writeStat(energy);
-        try {
-            NetworkService.getInstance().sendEnergy(energy);
-        }
-        catch (InterruptedException e){
-            e.printStackTrace();
-        }
-        catch (IllegalMonitorStateException e){
-            e.printStackTrace();
-        }
+        NetworkService.getInstance().sendEnergy(energy);
+
     }
 
     public String detectAction(){
         boolean change = isStillMove();
-        String actionStatus="";
+        String actionStatus=request;
         //fail case
 
         if(iter* MainActivity.TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change){
             iter=0;
+            actionStatus = request;
+            Log.i("STAT", "FAIL" + actionStatus);
             if(prvsStatus!=0) {
-                actionStatus = request;
                 sendStat(FAIL_CODE);
-                Log.i("STAT", "FAIL" + actionStatus);
+
             }
             prvsStatus=0;
         }

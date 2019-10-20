@@ -4,21 +4,27 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
+/**
+ * using for openup db that use
+ * {@link DBAccess} class
+ * */
 public class DBHelper  extends SQLiteOpenHelper {
         final  String LOG_TAG = "DATABASE";
         private Context context;
         DBHelper(Context context) {
-            // конструктор суперкласса
             super(context, "statusDB", null, 1);
             this.context =context;
         }
-
+        /**
+         *
+         * init table if table still does not exist
+         * @param db is database that decelerated in superclass constructor
+         * */
         @Override
         public void onCreate(SQLiteDatabase db) {
             Log.d(LOG_TAG, "--- onCreate database ---");
-            // создаем таблицу с полями
-            db.execSQL("create table stats ("
+            //create table
+            db.execSQL("create table if not exists stats ("
                     + "id integer primary key autoincrement,"
                     + "time integer,"
                     + "status integer" + ");");

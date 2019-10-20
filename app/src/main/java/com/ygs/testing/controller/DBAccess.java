@@ -11,10 +11,17 @@ import com.ygs.testing.util.Energy;
 import com.ygs.testing.util.Status;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author Ihor Ytsyk
+ *
+ * used for accesing to db
+ * read and write data based on
+ * {@link com.ygs.testing.util.Status}
+ *
+ * */
 
 public class DBAccess {
     private DBHelper dbHelper;
@@ -37,14 +44,15 @@ public class DBAccess {
    }
 
    public  void writeStat(Energy energy){
+       writeStat(energy,new Date());
+   }
+   public void writeStat(Energy energy,Date date){
        ContentValues cv = new ContentValues();
        SQLiteDatabase db = dbHelper.getWritableDatabase();
        cv.put("status",energy.getStatus());
-       cv.put("time", (int) (new Date().getTime()/1000));//convert date to int
+       cv.put("time", (int) (date.getTime()/1000));//convert date to int
        long rowID = db.insert("stats", null, cv);
-        // = db.insert("mytable", null, cv);
        Log.d("INSERT", "row inserted, ID = " + rowID);
-
    }
    public List<Status> loadStats(){
        List<Status> stats = new ArrayList<Status>();

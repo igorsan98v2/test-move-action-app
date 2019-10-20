@@ -44,16 +44,22 @@ public class NetworkService {
         return mInstance;
     }
     protected synchronized void notifyInstance(){
-        notify();
+        notifyAll();
     }
     public JSONPlaceHolderApi getJSONApi() {
         return mRetrofit.create(JSONPlaceHolderApi.class);
     }
-    public  Energy sendEnergy(Energy energy) throws  IllegalMonitorStateException,InterruptedException{
+    /**
+     *
+     * @param energy
+     *
+     * @throws IllegalMonitorStateException
+     * @throws InterruptedException
+     * */
+    public  Energy sendEnergy(Energy energy){
             final Energy respondEnergy = new Energy();
 
 
-            synchronized (mInstance){
                 mInstance
                     .getJSONApi().sendData(energy)
                     .enqueue(new Callback<ResponseBody>() {
@@ -84,12 +90,11 @@ public class NetworkService {
                             t.printStackTrace();
                         }
                     });
-                wait();
-
-            }
 
 
-           return respondEnergy;
+
+
+        return respondEnergy;
 
 
 

@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
-
+/**
+ * used for operating with data in {@link RecycleAdapter} from db
+ *
+ * */
 public class Status {
     private int id;
     private int status;
