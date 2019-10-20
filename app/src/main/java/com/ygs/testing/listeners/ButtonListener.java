@@ -1,5 +1,6 @@
 package com.ygs.testing.listeners;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,10 @@ import java.util.Collection;
 import java.util.List;
 
 public class ButtonListener implements View.OnClickListener {
+    private Context context;
+    public ButtonListener(Context context){
+        this.context = context;
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -21,8 +26,8 @@ public class ButtonListener implements View.OnClickListener {
                 Log.d("BUTTON","clicked");
 
 
-                Intent intent = new Intent(v.getContext(), StatsActivity.class);
-                v.getContext().startActivity(intent);
+                Intent intent = new Intent(context, StatsActivity.class);
+                context.startActivity(intent);
                 break;
         }
     }

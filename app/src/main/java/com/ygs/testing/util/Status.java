@@ -9,7 +9,7 @@ public class Status {
     private int id;
     private int status;
     private Date date;
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     public Status(int id, int status, Date date) {
         this.id = id;
