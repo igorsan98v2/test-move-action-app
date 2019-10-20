@@ -46,7 +46,7 @@ public class DBAccess {
        Log.d("INSERT", "row inserted, ID = " + rowID);
 
    }
-   public Collection<Status> loadStats(){
+   public List<Status> loadStats(){
        List<Status> stats = new ArrayList<Status>();
        SQLiteDatabase db = dbHelper.getWritableDatabase();
        Cursor c = db.query("stats", null, null, null, null, null, null);

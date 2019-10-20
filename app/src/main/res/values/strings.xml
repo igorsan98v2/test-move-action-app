@@ -4,4 +4,8 @@
     <string name="action_in_progress">Вы тратите энергию</string>
     <string name="action_respond">Энергия успешно потрачена.</string>
     <string name="stat_button">Статистика</string>
+
+    <string name="status_id">id</string>
+    <string name="status_respond">статус</string>
+    <string name="status_date">дата/время</string>
 </resources>

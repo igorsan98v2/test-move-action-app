@@ -9,7 +9,7 @@ public class Status {
     private int id;
     private int status;
     private Date date;
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final SimpleDateFormat formater = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     public Status(int id, int status, Date date) {
         this.id = id;
@@ -41,12 +41,15 @@ public class Status {
         this.date = date;
     }
 
+    public String getStringedDate(){
+        return formater.format(date);
+    }
     @NonNull
     @Override
     public String toString() {
 
 
-        String dateString = format.format( date);
+        String dateString = formater.format( date);
         return String.format("%-6d %d %13s",id,status,dateString);
     }
 }
