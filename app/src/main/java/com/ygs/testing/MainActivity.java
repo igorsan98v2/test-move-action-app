@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-
+        final Object lock = new Object();
         timer = new Timer();
         //provide ability to check motionEventListener every TIMER_PERIOD ms
         TimerTask task = new TimerTask() {
@@ -67,8 +67,12 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String status = controller.detectAction();//detecting is user ended any movement or continue doing them, or event did`nt start yet
-                       changeInfo(status);
+                        //prevent call till prs data writing to db 
+                       synchronized (lock){
+                            String status = controller.detectAction();//detecting is user ended any movement or continue doing them, or event did`nt start yet
+                            changeInfo(status);
+
+                       }
                     }
                 });
             }

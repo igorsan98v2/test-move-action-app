@@ -31,8 +31,11 @@ public class MotionController {
     private static final float ACCURANCY =0.1f;//using for decide is move was done
     private static final int ACTION_FAIL_TIME = 1000;//time that must gone to fail energy loss
     private static final int ACTION_TIME = 10000;//time that must gone till phone is move to lose energy successfully
+
     private static final int FAIL_CODE =0;
     private  static final int SUCCESS_CODE =1;
+    private static final int CONTINUE_CODE =2;
+
 
     private int prvsStatus=0;
     private int iter=0;
@@ -125,7 +128,7 @@ public class MotionController {
     private String successAction(){
 
         Log.i("STAT","success"+success);
-        if(iter>0)
+        if(iter>0&&prvsStatus==CONTINUE_CODE)
             try {
                 sendStat(SUCCESS_CODE);
             }
@@ -137,14 +140,14 @@ public class MotionController {
                 iter++;
 
         }
-        else iter=-6;//make delay
-        prvsStatus =1;
+        else iter =- 6;//make delay
+        prvsStatus = SUCCESS_CODE;
         return  success;
     }
     private String failAction(){
         iter=0;
         Log.i("STAT", "FAIL" + request);
-        if(prvsStatus!=0) {
+        if(prvsStatus!=FAIL_CODE) {
             try {
                 sendStat(FAIL_CODE);
             }
@@ -152,12 +155,12 @@ public class MotionController {
                 e.printStackTrace();
             }
         }
-        prvsStatus=0;
+        prvsStatus=FAIL_CODE;
         return  request;
     }
     private String continueAction(){
         iter++;
-        prvsStatus =2;
+        prvsStatus =CONTINUE_CODE;
         Log.i("STAT","progress " + progress);
         return progress;
     }
