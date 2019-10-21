@@ -23,12 +23,13 @@ import static com.ygs.testing.MainActivity.TIMER_PERIOD;
  *
  * */
 public class MotionController {
+
     private MotionEventListener eventListener;
     private Context context;
     private float[] prvsValues = null;
 
     //magic values
-    private static final float ACCURANCY =0.1f;//using for decide is move was done
+    private static final float ACCURACY = 0.1f;//using for decide is move was done
     private static final int ACTION_FAIL_TIME = 1000;//time that must gone to fail energy loss
     private static final int ACTION_TIME = 10000;//time that must gone till phone is move to lose energy successfully
 
@@ -64,7 +65,7 @@ public class MotionController {
        if(prvsValues!=null&&curValues!=null){
             int unMoveCounter = 0;//count of same values in every axis
             for(int i=0;i<curValues.length;i++){
-                if(curValues[i]-prvsValues[i]<=ACCURANCY)
+                if(curValues[i]-prvsValues[i]<= ACCURACY)
                     unMoveCounter++;
             }
            prvsValues = curValues.clone();
@@ -120,15 +121,18 @@ public class MotionController {
 
 
     private boolean failCondition(boolean change){
-        return  iter* TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change && iter>=0;
+        return  iter * TIMER_PERIOD % ACTION_FAIL_TIME ==0
+                && !change
+                && iter>=0;
     }
     private boolean successCondition(){
-        return (iter* TIMER_PERIOD % ACTION_TIME==0 && iter>0) || iter<0;
+        return (iter * TIMER_PERIOD % ACTION_TIME==0 && iter>0)
+                || iter<0;
     }
     private String successAction(){
 
         Log.i("STAT","success"+success);
-        if(iter>0&&prvsStatus==CONTINUE_CODE)
+        if(iter>0 && prvsStatus==CONTINUE_CODE)
             try {
                 sendStat(SUCCESS_CODE);
             }

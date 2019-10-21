@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //prevent call till prs data writing to db 
+                        //prevent call till prs data writing to db
                        synchronized (lock){
                             String status = controller.detectAction();//detecting is user ended any movement or continue doing them, or event did`nt start yet
                             changeInfo(status);
