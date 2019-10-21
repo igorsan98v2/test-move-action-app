@@ -14,11 +14,19 @@ import com.ygs.testing.util.Status;
 import java.util.Collection;
 import java.util.List;
 
+
+/**
+ * @author Ihor Yutsyk
+ *operate with button click, start new activity with static of
+ *  user tries
+ *
+ * */
 public class ButtonListener implements View.OnClickListener {
     private Context context;
     public ButtonListener(Context context){
         this.context = context;
     }
+    //
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -26,8 +34,8 @@ public class ButtonListener implements View.OnClickListener {
                 Log.d("BUTTON","clicked");
 
 
-                Intent intent = new Intent(context, StatsActivity.class);
-                context.startActivity(intent);
+                Intent intent = new Intent(context, StatsActivity.class);//choose intent
+                context.startActivity(intent);//start activity
                 break;
         }
     }

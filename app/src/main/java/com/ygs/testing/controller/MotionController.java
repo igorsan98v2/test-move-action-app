@@ -10,13 +10,15 @@ import com.ygs.testing.listeners.MotionEventListener;
 import com.ygs.testing.services.NetworkService;
 import com.ygs.testing.util.Energy;
 
+import static com.ygs.testing.MainActivity.TIMER_PERIOD;
 
 
 /**
  * @author Ihor Yutsyk
- * class use for conrolling user motion
- * deciding status of energy loss progress;
- * sending stat to restful service with report of energy loss try
+ * class use for contoll user motion by using {@link MotionEventListener}
+ * to get values of accel from sensor of {@link android.hardware.Sensor} type Gravity;
+ * deciding status of energy loss progress ;
+ * sending stat to restful service with report of energy loss try;
  * saving data energy loses to db
  *
  * */
@@ -25,7 +27,8 @@ public class MotionController {
     private Context context;
     private float[] prvsValues = null;
 
-    private float ACCURANCY =0.1f;//
+    //magic values
+    private float ACCURANCY =0.1f;//using for decide is move was done
     private final int ACTION_FAIL_TIME = 1000;
     private final int ACTION_TIME = 10000;
     private final int FAIL_CODE =0;
@@ -47,12 +50,16 @@ public class MotionController {
         request =  context.getResources().getString(R.string.action_request);
         DBAccess.getInstace(context);
     }
+    /**decide if move was done in last TIMER_PERIOD (see {@link MainActivity})
+     * @return true if move was done
+     * @return false if move was`nt done
+     * */
     public boolean isStillMove(){
-        float[]curValues =  eventListener.getValues();
 
+        float[]curValues =  eventListener.getValues();//getting values from sensor
 
        if(prvsValues!=null&&curValues!=null){
-            int unMoveCounter = 0;
+            int unMoveCounter = 0;//count of same values in every axis
             for(int i=0;i<curValues.length;i++){
                 if(curValues[i]-prvsValues[i]<=ACCURANCY)
                     unMoveCounter++;
@@ -67,45 +74,85 @@ public class MotionController {
        if(prvsValues==null||curValues==null)return false;
        return true;
     }
-    public void  sendStat(int status){
+    /**send statistic to API service {@link NetworkService}
+     * save status of action in local storage by {@link DBAccess}
+     * @throws NumberFormatException to prevent sending wrong info to service and writing to db
+     */
+    public void  sendStat(int status) throws NumberFormatException{
         Energy energy = new Energy();
         energy.setStatus(status);
         DBAccess.getInstace(context).writeStat(energy);
         NetworkService.getInstance().sendEnergy(energy);
 
     }
-
+    /**decide type of action that make user
+     * action status can have three variants:
+     * <ul>
+     *     <li>{@link #request}</li>
+     *     <li>{@link #success}</li>
+     *     <li>{@link #progress}</li>
+     * <ul/>
+     * also send info to api  and save data to db
+     * @return action status
+     * */
     public String detectAction(){
         boolean change = isStillMove();
         String actionStatus=request;
         //fail case
-
-        if(iter* MainActivity.TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change){
-            iter=0;
-            actionStatus = request;
-            Log.i("STAT", "FAIL" + actionStatus);
-            if(prvsStatus!=0) {
-                sendStat(FAIL_CODE);
-
-            }
-            prvsStatus=0;
+        if(failCondition(change)){
+            actionStatus =  failAction();
         }
         //success case
-        else if(iter*MainActivity.TIMER_PERIOD%ACTION_TIME==0 && iter!=0)
+        else if(successCondition())
         {
-            actionStatus = success;
-            Log.i("STAT","success"+actionStatus);
-            sendStat(SUCCESS_CODE);
-            iter=0;
-            prvsStatus =1;
+           actionStatus =successAction();
         }
         //continue case
         else{
-            actionStatus = progress;
-            Log.i("STAT","progress" + actionStatus);
-            iter++;
-            prvsStatus =2;
+            actionStatus = continueAction();
         }
         return  actionStatus;
+    }
+
+
+    private boolean failCondition(boolean change){
+        return  iter* TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change && iter>0;
+    }
+    private boolean successCondition(){
+        return iter* TIMER_PERIOD % ACTION_TIME==0 || iter<0;
+    }
+    private String successAction(){
+
+        Log.i("STAT","success"+success);
+        if(iter>0)
+            try {
+                sendStat(SUCCESS_CODE);
+            }
+            catch (NumberFormatException e){
+                e.printStackTrace();
+            }
+        iter=-6;//make delay
+        prvsStatus =1;
+        return  success;
+    }
+    private String failAction(){
+        iter=0;
+        Log.i("STAT", "FAIL" + request);
+        if(prvsStatus!=0) {
+            try {
+                sendStat(FAIL_CODE);
+            }
+            catch (NumberFormatException e){
+                e.printStackTrace();
+            }
+        }
+        prvsStatus=0;
+        return  request;
+    }
+    private String continueAction(){
+        iter++;
+        prvsStatus =2;
+        Log.i("STAT","progress " + progress);
+        return progress;
     }
 }

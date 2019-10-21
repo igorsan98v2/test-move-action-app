@@ -20,7 +20,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
+/**
+ * @author Ihor Yutsyk
+ *
+ * This serive make requst to server with {@link Energy},
+ * then get respond from put-request by {@link Callback<ResponseBody>},
+ * respond contain json with anserw from server;
+ *
+ *
+ * */
 public class NetworkService {
     private static NetworkService mInstance;
     private static final String BASE_URL = "https://betaapi.nasladdin.club/";
@@ -43,18 +51,14 @@ public class NetworkService {
         }
         return mInstance;
     }
-    protected synchronized void notifyInstance(){
-        notifyAll();
-    }
+
     public JSONPlaceHolderApi getJSONApi() {
         return mRetrofit.create(JSONPlaceHolderApi.class);
     }
     /**
+     *send data to server in async mode
+     * @param energy contain report of this try to make energy by user
      *
-     * @param energy
-     *
-     * @throws IllegalMonitorStateException
-     * @throws InterruptedException
      * */
     public  Energy sendEnergy(Energy energy){
             final Energy respondEnergy = new Energy();
@@ -70,7 +74,7 @@ public class NetworkService {
                             try {
                                 Energy energy = new Gson().fromJson(response.body().string(),Energy.class);
                                 respondEnergy.setStatus(energy.getStatus());
-                                notifyInstance();
+
                             }
                             catch (IOException e){
                                 e.printStackTrace();
@@ -78,8 +82,6 @@ public class NetworkService {
                             catch (NullPointerException e){
                                 e.printStackTrace();
                             }
-
-
 
 
                         }

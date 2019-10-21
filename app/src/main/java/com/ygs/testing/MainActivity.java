@@ -17,13 +17,20 @@ import com.ygs.testing.listeners.MotionEventListener;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+/**
+ * @author Ihor Yutsyk
+ * works with UI
+ * use {@link MotionController} to decide status type of energy losing
+ * */
 public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private MotionEventListener motionEventListener=new MotionEventListener();
     private Button toStatButton;
     private TextView actionStatus;
+    Timer timer;
+    //magic value
     public static final int TIMER_PERIOD =500;
+
     MotionController controller;
 
     @Override
@@ -40,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         toStatButton =findViewById(R.id.button);
         toStatButton.setOnClickListener(new ButtonListener(this));
         controller = new MotionController(motionEventListener,this);
+        Timer timer = new Timer();
 
     }
 
@@ -48,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
 
-        Timer timer = new Timer();
+
         //provide ability to check motionEventListener every TIMER_PERIOD ms
         TimerTask task = new TimerTask() {
 
@@ -57,13 +65,14 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String status = controller.detectAction();//detecting is user ended any movement or continue doing them, or event didn`t start yet
+                        String status = controller.detectAction();//detecting is user ended any movement or continue doing them, or event did`nt start yet
                        changeInfo(status);
                     }
                 });
             }
         };
         timer.schedule(task,0,TIMER_PERIOD);
+
     }
 
     private void changeInfo(String action){
@@ -73,5 +82,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         DBAccess.close();
+    }
+    @Override
+    protected  void onPause(){
+        super.onPause();
+        timer.cancel();
+        
+    }
+    @Override
+    protected void onStop(){
+        super.onStop();
+        timer.cancel();
     }
 }
