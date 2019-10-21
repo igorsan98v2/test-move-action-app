@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private MotionEventListener motionEventListener=new MotionEventListener();
     private Button toStatButton;
     private TextView actionStatus;
-    Timer timer;
+    Timer timer= new Timer();
     //magic value
     public static final int TIMER_PERIOD =500;
 
@@ -41,13 +41,15 @@ public class MainActivity extends AppCompatActivity {
         Sensor motionSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         sensorManager.registerListener(motionEventListener,motionSensor,SensorManager.SENSOR_DELAY_NORMAL);
 
-
         setContentView(R.layout.activity_main);
+
+
+
         actionStatus = findViewById(R.id.action_status);
         toStatButton =findViewById(R.id.button);
         toStatButton.setOnClickListener(new ButtonListener(this));
         controller = new MotionController(motionEventListener,this);
-        Timer timer = new Timer();
+
 
     }
 
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
 
-
+        timer = new Timer();
         //provide ability to check motionEventListener every TIMER_PERIOD ms
         TimerTask task = new TimerTask() {
 
@@ -71,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-        timer.schedule(task,0,TIMER_PERIOD);
+        timer.schedule(task,1000,TIMER_PERIOD);
+
 
     }
 
@@ -86,12 +89,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected  void onPause(){
         super.onPause();
-        timer.cancel();
-        
+        if(timer!=null){
+            timer.cancel();
+        }
+
     }
     @Override
     protected void onStop(){
         super.onStop();
-        timer.cancel();
+        if(timer!=null){
+            timer.cancel();
+        }
     }
 }

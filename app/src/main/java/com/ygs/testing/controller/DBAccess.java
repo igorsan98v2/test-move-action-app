@@ -33,7 +33,7 @@ public class DBAccess {
        try {
 
 
-           if (dbAccess.dbHelper == null || (dbAccess.dbHelper!=null && !context.equals(dbAccess.dbHelper.getContext()))) {
+           if (dbAccess.dbHelper == null || (dbAccess.dbHelper.getContext()!=null && !context.equals(dbAccess.dbHelper.getContext()))) {
                dbAccess.dbHelper = new DBHelper(context);
            }
        }

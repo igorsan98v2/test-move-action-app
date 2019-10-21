@@ -28,11 +28,11 @@ public class MotionController {
     private float[] prvsValues = null;
 
     //magic values
-    private float ACCURANCY =0.1f;//using for decide is move was done
-    private final int ACTION_FAIL_TIME = 1000;
-    private final int ACTION_TIME = 10000;
-    private final int FAIL_CODE =0;
-    private final int SUCCESS_CODE =1;
+    private static final float ACCURANCY =0.1f;//using for decide is move was done
+    private static final int ACTION_FAIL_TIME = 1000;//time that must gone to fail energy loss
+    private static final int ACTION_TIME = 10000;//time that must gone till phone is move to lose energy successfully
+    private static final int FAIL_CODE =0;
+    private  static final int SUCCESS_CODE =1;
 
     private int prvsStatus=0;
     private int iter=0;
@@ -68,10 +68,11 @@ public class MotionController {
            if(unMoveCounter==curValues.length)return false;
 
        }
-       if(curValues!=null){
-        prvsValues = curValues.clone();
+
+       if(curValues!=null&&prvsValues==null){
+            prvsValues = curValues.clone();
+            return false;//if we here it`s firs call of isStillMove
        }
-       if(prvsValues==null||curValues==null)return false;
        return true;
     }
     /**send statistic to API service {@link NetworkService}
@@ -116,10 +117,10 @@ public class MotionController {
 
 
     private boolean failCondition(boolean change){
-        return  iter* TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change && iter>0;
+        return  iter* TIMER_PERIOD% ACTION_FAIL_TIME ==0 && !change && iter>=0;
     }
     private boolean successCondition(){
-        return iter* TIMER_PERIOD % ACTION_TIME==0 || iter<0;
+        return (iter* TIMER_PERIOD % ACTION_TIME==0 && iter>0) || iter<0;
     }
     private String successAction(){
 
@@ -130,8 +131,13 @@ public class MotionController {
             }
             catch (NumberFormatException e){
                 e.printStackTrace();
+
             }
-        iter=-6;//make delay
+        else if(iter!=-6){
+                iter++;
+
+        }
+        else iter=-6;//make delay
         prvsStatus =1;
         return  success;
     }

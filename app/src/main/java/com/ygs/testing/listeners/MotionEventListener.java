@@ -12,12 +12,6 @@ public class MotionEventListener implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         values =  event.values;
-        StringBuffer stringBuffer = new StringBuffer("");
-        for(float val:values) {
-            stringBuffer.append(val).append(" ");
-
-        }
-
     }
 
     @Override
